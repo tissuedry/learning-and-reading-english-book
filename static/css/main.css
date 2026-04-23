@@ -1,0 +1,2382 @@
+/* ============================================================
+   READFOLIO — Main Stylesheet
+   Warm, paper-like, calm reading experience
+   ============================================================ */
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  /* Colors */
+  --bg:               #F8F5EF;
+  --bg-warm:          #F2EDE3;
+  --surface:          #FFFFFF;
+  --surface-hover:    #FDFAF5;
+  --surface-raised:   #FFFEF9;
+
+  --text-primary:     #1C1916;
+  --text-secondary:   #5C5550;
+  --text-muted:       #9B918A;
+  --text-inverse:     #FEFCF8;
+
+  --accent:           #B5722A;
+  --accent-hover:     #9D621F;
+  --accent-soft:      #F5E6CC;
+  --accent-softer:    #FDF4E7;
+
+  --highlight-yellow: rgba(255, 213, 79, 0.55);
+  --highlight-green:  rgba(130, 190, 130, 0.4);
+  --highlight-blue:   rgba(100, 160, 220, 0.35);
+
+  --border:           #E2D9CE;
+  --border-strong:    #C8BEB4;
+  --border-focus:     #B5722A;
+
+  --success:          #4A7C59;
+  --success-bg:       #EAF5EE;
+  --danger:           #A64040;
+  --danger-bg:        #FDECEA;
+  --warning:          #8A6914;
+  --warning-bg:       #FEF6E0;
+
+  --shadow-sm:        0 1px 3px rgba(28, 25, 22, 0.08);
+  --shadow-md:        0 4px 16px rgba(28, 25, 22, 0.10);
+  --shadow-lg:        0 8px 32px rgba(28, 25, 22, 0.12);
+  --shadow-float:     0 12px 40px rgba(28, 25, 22, 0.15);
+
+  /* Typography */
+  --font-ui:          'DM Sans', sans-serif;
+  --font-heading:     'Lora', Georgia, serif;
+  --font-reading:     'Source Serif 4', Georgia, serif;
+
+  /* Spacing */
+  --radius-sm:        6px;
+  --radius-md:        10px;
+  --radius-lg:        16px;
+  --radius-xl:        20px;
+  --radius-full:      9999px;
+
+  /* Layout */
+  --sidebar-width:    240px;
+  --hl-sidebar-width: 280px;
+  --ai-panel-width:   340px;
+  --topbar-height:    56px;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-ui);
+  background:  var(--bg);
+  color:       var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; border: none; background: none; }
+input  { font-family: inherit; }
+
+/* ── Typography Helpers ────────────────────────────────────── */
+.text-muted    { color: var(--text-muted); }
+.text-accent   { color: var(--accent); }
+.font-heading  { font-family: var(--font-heading); }
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             7px;
+  padding:         8px 18px;
+  border-radius:   var(--radius-md);
+  font-size:       14px;
+  font-weight:     500;
+  transition:      all 0.18s ease;
+  white-space:     nowrap;
+  border:          1.5px solid transparent;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background:   var(--accent);
+  color:        #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background:   var(--accent-hover);
+  border-color: var(--accent-hover);
+  transform:    translateY(-1px);
+  box-shadow:   var(--shadow-sm);
+}
+
+.btn-outline {
+  background:   transparent;
+  color:        var(--accent);
+  border-color: var(--accent);
+}
+.btn-outline:hover { background: var(--accent-softer); }
+
+.btn-ghost {
+  background:   transparent;
+  color:        var(--text-secondary);
+  border-color: var(--border);
+}
+.btn-ghost:hover { background: var(--bg-warm); }
+
+.icon-btn {
+  display:      flex;
+  align-items:  center;
+  justify-content: center;
+  width:        36px;
+  height:       36px;
+  border-radius: var(--radius-sm);
+  color:        var(--text-secondary);
+  transition:   all 0.15s ease;
+}
+.icon-btn:hover { background: var(--bg-warm); color: var(--text-primary); }
+.icon-btn.active { background: var(--accent-soft); color: var(--accent); }
+
+/* ── Spinner ────────────────────────────────────────────────── */
+.spinner {
+  display:       inline-block;
+  width:         14px;
+  height:        14px;
+  border:        2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation:     spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ──────────────────────────────────────────────────── */
+#toast-container {
+  position:   fixed;
+  bottom:     24px;
+  right:      24px;
+  z-index:    9999;
+  display:    flex;
+  flex-direction: column;
+  gap:        10px;
+  pointer-events: none;
+}
+.toast {
+  display:      flex;
+  align-items:  center;
+  gap:          10px;
+  padding:      12px 18px;
+  background:   var(--text-primary);
+  color:        var(--text-inverse);
+  border-radius: var(--radius-md);
+  font-size:    14px;
+  box-shadow:   var(--shadow-float);
+  animation:    toast-in 0.3s ease;
+  pointer-events: all;
+}
+.toast.success { background: var(--success); }
+.toast.error   { background: var(--danger); }
+.toast.warning { background: var(--warning); }
+@keyframes toast-in {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(60px); opacity: 0; }
+}
+
+/* ============================================================
+   LIBRARY PAGE (index.html)
+   ============================================================ */
+
+.library-layout {
+  display:    flex;
+  min-height: 100vh;
+}
+
+/* ── Library Sidebar ───────────────────────────────────────── */
+.lib-sidebar {
+  width:      var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1.5px solid var(--border);
+  display:    flex;
+  flex-direction: column;
+  padding:    28px 20px;
+  position:   sticky;
+  top:        0;
+  height:     100vh;
+  overflow-y: auto;
+}
+
+.lib-brand {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  margin-bottom: 36px;
+}
+.brand-icon { font-size: 22px; }
+.brand-name {
+  font-family: var(--font-heading);
+  font-size:   20px;
+  font-weight: 600;
+  color:       var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.lib-nav { display: flex; flex-direction: column; gap: 4px; }
+.lib-nav-item {
+  display:      flex;
+  align-items:  center;
+  gap:          10px;
+  padding:      9px 12px;
+  border-radius: var(--radius-md);
+  font-size:    14px;
+  font-weight:  500;
+  color:        var(--text-secondary);
+  transition:   all 0.15s ease;
+}
+.lib-nav-item:hover { background: var(--bg-warm); color: var(--text-primary); }
+.lib-nav-item.active { background: var(--accent-soft); color: var(--accent); }
+
+.lib-sidebar-footer { margin-top: auto; padding-top: 20px; }
+
+/* ── Library Main ──────────────────────────────────────────── */
+.lib-main {
+  flex:       1;
+  padding:    40px 48px;
+  overflow-y: auto;
+}
+
+.lib-header {
+  display:       flex;
+  align-items:   flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.lib-title {
+  font-family: var(--font-heading);
+  font-size:   28px;
+  font-weight: 600;
+  color:       var(--text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+.lib-subtitle {
+  font-size:   14px;
+  color:       var(--text-muted);
+  margin-top:  4px;
+}
+
+/* ── Library Search ────────────────────────────────────────── */
+.lib-search-wrap {
+  position:     relative;
+  margin-bottom: 28px;
+}
+.search-icon {
+  position: absolute;
+  left:     14px;
+  top:      50%;
+  transform: translateY(-50%);
+  color:    var(--text-muted);
+  pointer-events: none;
+}
+.lib-search {
+  width:        100%;
+  max-width:    360px;
+  padding:      10px 14px 10px 42px;
+  border:       1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background:   var(--surface);
+  font-size:    14px;
+  color:        var(--text-primary);
+  transition:   border-color 0.2s;
+}
+.lib-search:focus {
+  outline:      none;
+  border-color: var(--border-focus);
+  box-shadow:   0 0 0 3px var(--accent-soft);
+}
+.lib-search::placeholder { color: var(--text-muted); }
+
+/* ── Document Grid ─────────────────────────────────────────── */
+.doc-grid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap:                   20px;
+}
+
+.doc-card {
+  background:    var(--surface);
+  border:        1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding:       24px;
+  cursor:        pointer;
+  transition:    all 0.2s ease;
+  position:      relative;
+  overflow:      hidden;
+  text-decoration: none;
+  display:       block;
+}
+.doc-card::before {
+  content:    '';
+  position:   absolute;
+  top:        0; left: 0; right: 0;
+  height:     3px;
+  background: linear-gradient(90deg, var(--accent), #E8B86D);
+  opacity:    0;
+  transition: opacity 0.2s ease;
+}
+.doc-card:hover {
+  border-color: var(--border-strong);
+  box-shadow:   var(--shadow-md);
+  transform:    translateY(-2px);
+}
+.doc-card:hover::before { opacity: 1; }
+
+.doc-card-icon {
+  font-size:     28px;
+  margin-bottom: 14px;
+}
+.doc-card-title {
+  font-family:   var(--font-heading);
+  font-size:     16px;
+  font-weight:   600;
+  color:         var(--text-primary);
+  line-height:   1.35;
+  margin-bottom: 10px;
+  display:       -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow:      hidden;
+}
+
+/* Progress bar */
+.doc-progress-wrap {
+  margin-bottom: 10px;
+}
+.doc-progress-bar {
+  height:        4px;
+  background:    var(--bg-warm);
+  border-radius: var(--radius-full);
+  overflow:      hidden;
+}
+.doc-progress-fill {
+  height:     100%;
+  background: linear-gradient(90deg, var(--accent), #E8B86D);
+  border-radius: var(--radius-full);
+  transition: width 0.6s ease;
+}
+.doc-progress-label {
+  font-size:  12px;
+  color:      var(--text-muted);
+  margin-top: 5px;
+}
+
+.doc-meta {
+  display:     flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top:  14px;
+}
+.doc-date {
+  font-size: 12px;
+  color:     var(--text-muted);
+}
+.doc-delete-btn {
+  display:    flex;
+  align-items: center;
+  padding:    4px 8px;
+  border-radius: var(--radius-sm);
+  font-size:  12px;
+  color:      var(--text-muted);
+  transition: all 0.15s;
+}
+.doc-delete-btn:hover { color: var(--danger); background: var(--danger-bg); }
+
+/* ── Empty State ───────────────────────────────────────────── */
+.doc-empty {
+  grid-column: 1 / -1;
+  text-align:  center;
+  padding:     80px 40px;
+  color:       var(--text-muted);
+}
+.empty-icon  { font-size: 56px; margin-bottom: 20px; }
+.doc-empty h3 {
+  font-family: var(--font-heading);
+  font-size:   20px;
+  color:       var(--text-secondary);
+  margin-bottom: 8px;
+}
+.doc-empty p  { font-size: 14px; margin-bottom: 24px; }
+
+/* ── Modal ─────────────────────────────────────────────────── */
+.modal-backdrop {
+  position:   fixed;
+  inset:      0;
+  background: rgba(28, 25, 22, 0.45);
+  backdrop-filter: blur(4px);
+  z-index:    1000;
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  animation:  fade-in 0.2s ease;
+}
+.modal-backdrop[hidden] { display: none; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background:    var(--surface);
+  border-radius: var(--radius-xl);
+  width:         100%;
+  max-width:     480px;
+  margin:        24px;
+  box-shadow:    var(--shadow-float);
+  animation:     modal-slide-in 0.25s ease;
+}
+@keyframes modal-slide-in {
+  from { transform: translateY(24px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+.modal-header {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  padding:       24px 24px 0;
+}
+.modal-title {
+  font-family: var(--font-heading);
+  font-size:   20px;
+  font-weight: 600;
+}
+.modal-close {
+  display:      flex;
+  align-items:  center;
+  justify-content: center;
+  width:        32px;
+  height:       32px;
+  border-radius: var(--radius-sm);
+  color:        var(--text-muted);
+  transition:   all 0.15s;
+}
+.modal-close:hover { background: var(--bg-warm); color: var(--text-primary); }
+
+.modal-body   { padding: 24px; }
+.modal-footer {
+  display:         flex;
+  justify-content: flex-end;
+  gap:             10px;
+  padding:         16px 24px 24px;
+}
+
+/* Drop Zone */
+.drop-zone {
+  border:        2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding:       48px 24px;
+  text-align:    center;
+  transition:    all 0.2s ease;
+  background:    var(--bg);
+}
+.drop-zone.drag-over {
+  border-color: var(--accent);
+  background:   var(--accent-softer);
+}
+.drop-zone-icon { font-size: 40px; margin-bottom: 12px; }
+.drop-zone-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 14px; }
+.drop-zone-hint { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
+
+/* File Preview */
+.file-preview {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  padding:       14px;
+  background:    var(--bg);
+  border-radius: var(--radius-md);
+  border:        1.5px solid var(--border);
+  margin-bottom: 18px;
+}
+.file-preview-icon    { font-size: 24px; flex-shrink: 0; }
+.file-preview-info    { flex: 1; min-width: 0; }
+.file-preview-name    { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-preview-size    { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.file-remove-btn {
+  display:      flex;
+  align-items:  center;
+  padding:      6px;
+  border-radius: var(--radius-sm);
+  color:        var(--text-muted);
+  transition:   all 0.15s;
+  flex-shrink:  0;
+}
+.file-remove-btn:hover { color: var(--danger); background: var(--danger-bg); }
+
+/* Form */
+.form-group   { margin-bottom: 16px; }
+.form-label   { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+.form-input {
+  width:         100%;
+  padding:       9px 13px;
+  border:        1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size:     14px;
+  color:         var(--text-primary);
+  background:    var(--surface);
+  transition:    border-color 0.2s;
+}
+.form-input:focus {
+  outline:      none;
+  border-color: var(--border-focus);
+  box-shadow:   0 0 0 3px var(--accent-soft);
+}
+
+/* ============================================================
+   READER PAGE (reader.html)
+   ============================================================ */
+
+.reader-layout {
+  display:    flex;
+  flex-direction: column;
+  height:     100vh;
+  overflow:   hidden;
+  background: var(--bg);
+}
+
+/* ── Top Bar ───────────────────────────────────────────────── */
+.reader-topbar {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  height:        var(--topbar-height);
+  padding:       0 16px;
+  background:    var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  flex-shrink:   0;
+  gap:           16px;
+}
+
+.topbar-left {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  min-width:   0;
+  flex:        1;
+}
+.topbar-center { display: flex; align-items: center; flex-shrink: 0; }
+.topbar-right  {
+  display:     flex;
+  align-items: center;
+  gap:         4px;
+  flex:        1;
+  justify-content: flex-end;
+}
+
+.back-btn {
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  width:         34px;
+  height:        34px;
+  border-radius: var(--radius-md);
+  color:         var(--text-secondary);
+  flex-shrink:   0;
+  transition:    all 0.15s;
+}
+.back-btn:hover { background: var(--bg-warm); color: var(--text-primary); }
+
+.topbar-doc-info { min-width: 0; }
+.topbar-title {
+  font-family:  var(--font-heading);
+  font-size:    15px;
+  font-weight:  600;
+  white-space:  nowrap;
+  overflow:     hidden;
+  text-overflow: ellipsis;
+  max-width:    260px;
+}
+.topbar-badge {
+  display:       inline-block;
+  padding:       2px 8px;
+  border-radius: var(--radius-full);
+  font-size:     11px;
+  font-weight:   500;
+  background:    var(--accent-soft);
+  color:         var(--accent);
+  margin-top:    2px;
+}
+
+/* Page control */
+.page-control {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  background:  var(--bg);
+  border:      1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding:     4px 8px;
+}
+.page-btn {
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  width:         26px;
+  height:        26px;
+  border-radius: var(--radius-sm);
+  color:         var(--text-secondary);
+  transition:    all 0.15s;
+}
+.page-btn:hover { background: var(--border); color: var(--text-primary); }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.page-indicator {
+  display:     flex;
+  align-items: center;
+  gap:         4px;
+  font-size:   13px;
+}
+.page-input {
+  width:         40px;
+  text-align:    center;
+  border:        none;
+  background:    transparent;
+  font-size:     13px;
+  font-weight:   500;
+  color:         var(--text-primary);
+  padding:       0 2px;
+}
+.page-input:focus { outline: none; }
+.page-input::-webkit-inner-spin-button,
+.page-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.page-sep { color: var(--text-muted); }
+
+/* Zoom */
+.zoom-control {
+  display:     flex;
+  align-items: center;
+  gap:         2px;
+  margin-right: 4px;
+}
+.zoom-text {
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 42px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ── Reader Body ───────────────────────────────────────────── */
+.reader-body {
+  display:   flex;
+  flex:      1;
+  overflow:  hidden;
+  position:  relative;
+}
+
+/* ── Highlights Sidebar ────────────────────────────────────── */
+.highlights-sidebar {
+  width:        var(--hl-sidebar-width);
+  background:   var(--surface);
+  border-right: 1.5px solid var(--border);
+  display:      flex;
+  flex-direction: column;
+  flex-shrink:  0;
+  overflow:     hidden;
+  transition:   width 0.25s ease, opacity 0.25s ease;
+}
+.highlights-sidebar.collapsed {
+  width:   0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hl-sidebar-header {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  padding:       18px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink:   0;
+}
+.hl-sidebar-title {
+  font-family: var(--font-heading);
+  font-size:   15px;
+  font-weight: 600;
+}
+.hl-count {
+  background:    var(--accent-soft);
+  color:         var(--accent);
+  border-radius: var(--radius-full);
+  font-size:     12px;
+  font-weight:   600;
+  padding:       2px 8px;
+}
+
+.hl-list {
+  flex:       1;
+  overflow-y: auto;
+  padding:    12px;
+  display:    flex;
+  flex-direction: column;
+  gap:        8px;
+}
+.hl-list::-webkit-scrollbar       { width: 4px; }
+.hl-list::-webkit-scrollbar-track { background: transparent; }
+.hl-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+.hl-item {
+  background:    var(--bg);
+  border:        1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding:       12px;
+  cursor:        pointer;
+  transition:    all 0.15s;
+  border-left:   3px solid var(--accent);
+}
+.hl-item:hover { background: var(--accent-softer); border-color: var(--accent); }
+.hl-item-text {
+  font-size:     13px;
+  font-family:   var(--font-reading);
+  color:         var(--text-primary);
+  line-height:   1.5;
+  display:       -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow:      hidden;
+  margin-bottom: 6px;
+}
+.hl-item-meta {
+  display:     flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hl-item-page {
+  font-size: 11px;
+  color:     var(--text-muted);
+}
+.hl-item-delete {
+  display:    flex;
+  align-items: center;
+  padding:    2px 4px;
+  border-radius: var(--radius-sm);
+  color:     var(--text-muted);
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.hl-item-delete:hover { color: var(--danger); background: var(--danger-bg); }
+
+.hl-empty {
+  text-align:  center;
+  padding:     48px 16px;
+  color:       var(--text-muted);
+  font-size:   13px;
+  line-height: 1.7;
+}
+.hl-empty span { display: block; font-size: 32px; margin-bottom: 12px; }
+
+
+/* ============================================================
+   PERBAIKAN AREA BACA (ERGONOMI MATA)
+   ============================================================ */
+
+/* ── Area Luar PDF ─────────────────────────────────────────── */
+.pdf-area {
+  flex:          1;
+  overflow-y:    auto;
+  display:       flex;
+  align-items:   flex-start;
+  justify-content: center; /* Memaksa kertas ke tengah layar */
+  padding:       60px 20px; /* Ruang napas atas-bawah */
+  background:    #F4EFE6; /* Warna latar luar (Sepia terang) */
+  position:      relative;
+}
+
+.pdf-area::-webkit-scrollbar       { width: 6px; }
+.pdf-area::-webkit-scrollbar-track { background: transparent; }
+.pdf-area::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 6px; }
+
+/* PDF Loading */
+.pdf-loading {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            16px;
+  margin-top:     120px;
+  color:          var(--text-muted);
+  font-size:      14px;
+}
+.loading-dot-wrap {
+  display: flex;
+  gap:     8px;
+}
+.loading-dot {
+  width:      10px;
+  height:     10px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation:  dot-bounce 1.2s ease infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+  40%           { transform: scale(1.1); opacity: 1; }
+}
+
+/* ── Bungkus Kertas / Dokumen ──────────────────────────────── */
+.pdf-page-wrapper {
+  position:      relative;
+  display:       inline-block;
+  width:         100%;
+  max-width:     720px; /* KUNCI UTAMA: Membatasi lebar bacaan agar mata tidak lelah */
+  border-radius: 6px;
+  box-shadow:    0 8px 32px rgba(28, 25, 22, 0.08); /* Bayangan estetik */
+  background:    #FDFBF7; /* Warna kertas isi (Off-white, bukan putih murni) */
+  margin:        0 auto; /* Pastikan selalu ke tengah */
+}
+.pdf-page-wrapper[hidden] { display: none; }
+
+/* Pastikan Canvas PDF menyesuaikan lebar wrapper */
+#pdf-canvas {
+  display:       block;
+  width:         100% !important; /* Memaksa canvas ikut aturan max-width 720px */
+  height:        auto !important;
+  border-radius: var(--radius-sm);
+  position:      relative;
+  z-index:       1;  /* canvas paling bawah */
+}
+
+/* Text Layer (PDF.js) — HARUS di atas canvas agar bisa diseleksi */
+.pdf-text-layer {
+  position:        absolute;
+  inset:           0;
+  overflow:        hidden;
+  opacity:         1;
+  line-height:     1;
+  z-index:         2;   /* di atas canvas */
+  user-select:     text;
+  -webkit-user-select: text;
+}
+.pdf-text-layer > span {
+  color:            transparent;
+  position:         absolute;
+  white-space:      pre;
+  cursor:           text;
+  transform-origin: 0% 0%;
+  user-select:      text;
+  -webkit-user-select: text;
+}
+.pdf-text-layer > span::selection,
+.pdf-text-layer ::selection {
+  background: rgba(255, 200, 60, 0.5);
+  color:      transparent;
+}
+
+/* Highlight Overlay Layer — di atas text layer */
+.pdf-highlight-layer {
+  position:       absolute;
+  inset:          0;
+  pointer-events: none;  /* klik tembus ke text layer */
+  overflow:       hidden;
+  z-index:        3;
+}
+.hl-overlay {
+  position:       absolute;
+  background:     var(--highlight-yellow);
+  border-radius:  2px;
+  pointer-events: all;   /* tapi overlay sendiri bisa diklik */
+  cursor:         pointer;
+  transition:     background 0.15s;
+  mix-blend-mode: multiply;
+}
+.hl-overlay:hover { background: rgba(255, 190, 30, 0.7); }
+
+/* Last read marker */
+.last-read-marker {
+  position:   absolute;
+  left:       -2px;
+  width:      3px;
+  height:     100%;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  animation:  marker-pulse 2s ease infinite;
+}
+.last-read-marker[hidden] { display: none; }
+.last-read-label {
+  position:      absolute;
+  left:          10px;
+  top:           50%;
+  transform:     translateY(-50%);
+  background:    var(--accent);
+  color:         #fff;
+  font-size:     11px;
+  font-weight:   500;
+  padding:       4px 10px;
+  border-radius: var(--radius-full);
+  white-space:   nowrap;
+  box-shadow:    var(--shadow-sm);
+}
+@keyframes marker-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── AI Panel ──────────────────────────────────────────────── */
+.ai-panel {
+  width:         var(--ai-panel-width);
+  background:    var(--surface);
+  border-left:   1.5px solid var(--border);
+  display:       flex;
+  flex-direction: column;
+  flex-shrink:   0;
+  overflow:      hidden;
+  animation:     panel-slide-in 0.25s ease;
+}
+.ai-panel[hidden] { display: none; }
+@keyframes panel-slide-in {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.ai-panel-header {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  padding:       18px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink:   0;
+}
+.ai-panel-title {
+  font-family: var(--font-heading);
+  font-size:   15px;
+  font-weight: 600;
+}
+.ai-panel-close {
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  width:       30px;
+  height:      30px;
+  border-radius: var(--radius-sm);
+  color:       var(--text-muted);
+  transition:  all 0.15s;
+}
+.ai-panel-close:hover { background: var(--bg-warm); color: var(--text-primary); }
+
+.ai-panel-body {
+  flex:       1;
+  overflow-y: auto;
+  padding:    18px;
+}
+.ai-panel-body::-webkit-scrollbar       { width: 4px; }
+.ai-panel-body::-webkit-scrollbar-track { background: transparent; }
+.ai-panel-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+/* AI Loading */
+.ai-loading {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            14px;
+  padding:        48px 16px;
+  color:          var(--text-muted);
+  font-size:      13px;
+  text-align:     center;
+}
+
+/* AI Result Cards */
+.ai-selected-text {
+  background:    var(--bg-warm);
+  border:        1.5px solid var(--border);
+  border-left:   3px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding:       12px 14px;
+  font-family:   var(--font-reading);
+  font-size:     14px;
+  font-style:    italic;
+  color:         var(--text-secondary);
+  line-height:   1.6;
+  margin-bottom: 16px;
+}
+
+.ai-section {
+  margin-bottom: 16px;
+}
+.ai-section-label {
+  font-size:     11px;
+  font-weight:   600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color:         var(--text-muted);
+  margin-bottom: 7px;
+}
+.ai-section-content {
+  font-size:   14px;
+  line-height: 1.65;
+  color:       var(--text-primary);
+}
+.ai-translation {
+  font-family: var(--font-heading);
+  font-size:   16px;
+  font-weight: 500;
+  color:       var(--text-primary);
+  line-height: 1.5;
+}
+
+/* Vocabulary chips */
+.vocab-list {
+  display:   flex;
+  flex-wrap: wrap;
+  gap:       8px;
+  margin-top: 4px;
+}
+.vocab-chip {
+  background:    var(--accent-soft);
+  border:        1px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding:       6px 10px;
+  font-size:     13px;
+}
+.vocab-word   { font-weight: 600; color: var(--accent); }
+.vocab-type   { font-size: 10px; color: var(--text-muted); margin-left: 4px; }
+.vocab-meaning { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Difficulty badge */
+.difficulty-badge {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           4px;
+  padding:       3px 10px;
+  border-radius: var(--radius-full);
+  font-size:     12px;
+  font-weight:   500;
+}
+.difficulty-beginner    { background: var(--success-bg); color: var(--success); }
+.difficulty-intermediate { background: var(--warning-bg); color: var(--warning); }
+.difficulty-advanced    { background: var(--danger-bg);  color: var(--danger); }
+
+.ai-divider {
+  height:        1px;
+  background:    var(--border);
+  margin:        14px 0;
+}
+
+.ai-save-btn {
+  width:         100%;
+  margin-top:    8px;
+  justify-content: center;
+}
+
+/* ── Text Selection Tooltip ────────────────────────────────── */
+.selection-tooltip {
+  position:        fixed;
+  z-index:         10001;
+  background:      transparent;
+  border:          none;
+  box-shadow:      none;
+  animation:       tooltip-pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: center top;        /* muncul dari atas ke bawah */
+  white-space:     nowrap;
+  pointer-events:  none;
+}
+.selection-tooltip[hidden] { display: none; }
+ 
+@keyframes tooltip-pop {
+  from { transform: translateY(-8px) scale(0.7); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);   opacity: 1; }
+}
+ 
+/* ── Shell tooltip ─────────────────────────────────────────── */
+.selection-tooltip {
+  position:         fixed;
+  z-index:          10001;
+  background:       transparent !important;
+  border:           none       !important;
+  box-shadow:       none       !important;
+  outline:          none       !important;
+  pointer-events:   none;
+  white-space:      nowrap;
+  animation:        pop-down 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center top;
+}
+.selection-tooltip[hidden] { display: none; }
+ 
+@keyframes pop-down {
+  from { transform: translateY(-10px) scale(0.5); opacity: 0; }
+  to   { transform: translateY(0)     scale(1);   opacity: 1; }
+}
+ 
+/* ── Button: zero ukuran, zero semua ──────────────────────── */
+.tooltip-btn {
+  all:                        unset;
+  display:                    inline-block;
+  position:                   relative;
+  background:                 none    !important;
+  border:                     none    !important;
+  box-shadow:                 none    !important;
+  outline:                    none    !important;
+  padding:                    0       !important;
+  margin:                     0       !important;
+  cursor:                     pointer;
+  pointer-events:             auto;
+  line-height:                0;
+  -webkit-tap-highlight-color: transparent;
+}
+ 
+/* ── Emoji ─────────────────────────────────────────────────── */
+.tooltip-btn .emoji {
+  font-size:   22px;
+  line-height: 1;
+  display:     inline-block;
+  position:    relative;
+  z-index:     2;
+  transition:  transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tooltip-btn:hover .emoji { transform: scale(1.18); }
+ 
+/* Idle shadow — latar TERANG */
+.theme-light .tooltip-btn .emoji {
+  filter:
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.22))
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.10));
+}
+ 
+/* Idle shadow — latar GELAP */
+.theme-dark .tooltip-btn .emoji {
+  filter:
+    drop-shadow(0 1px 3px rgba(0,   0,   0,   0.70))
+    drop-shadow(0 0  7px rgba(255, 210,  60,  0.28));
+}
+ 
+/* ══════════════════════════════════════════════════════════════
+   GLOW LOADING
+   ══════════════════════════════════════════════════════════════ */
+ 
+/* Glow keemasan — latar TERANG */
+@keyframes glow-light {
+  0% {
+    filter:
+      drop-shadow(0 1px 2px rgba(0,   0,   0,   0.20))
+      drop-shadow(0 0  3px rgba(255, 185,  10,  0.28));
+  }
+  45% {
+    filter:
+      drop-shadow(0 0  0px rgba(0,   0,   0,   0.08))
+      drop-shadow(0 0 10px rgba(255, 185,  10,  0.95))
+      drop-shadow(0 0 22px rgba(255, 225,  80,  0.60))
+      drop-shadow(0 0 40px rgba(255, 240, 150,  0.28));
+  }
+  100% {
+    filter:
+      drop-shadow(0 1px 2px rgba(0,   0,   0,   0.20))
+      drop-shadow(0 0  3px rgba(255, 185,  10,  0.28));
+  }
+}
+ 
+/* Glow emas + ungu — latar GELAP */
+@keyframes glow-dark {
+  0% {
+    filter:
+      drop-shadow(0 1px 3px rgba(0,   0,   0,   0.70))
+      drop-shadow(0 0  4px rgba(255, 210,  60,  0.28))
+      drop-shadow(0 0  8px rgba(180, 155, 255,  0.12));
+  }
+  45% {
+    filter:
+      drop-shadow(0 0  2px rgba(0,   0,   0,   0.30))
+      drop-shadow(0 0 14px rgba(255, 210,  60,  1.00))
+      drop-shadow(0 0 30px rgba(255, 230, 110,  0.72))
+      drop-shadow(0 0 55px rgba(200, 175, 255,  0.38));
+  }
+  100% {
+    filter:
+      drop-shadow(0 1px 3px rgba(0,   0,   0,   0.70))
+      drop-shadow(0 0  4px rgba(255, 210,  60,  0.28))
+      drop-shadow(0 0  8px rgba(180, 155, 255,  0.12));
+  }
+}
+ 
+/* Emoji bernapas + sedikit goyang */
+@keyframes breathe {
+  0%   { transform: scale(1)    rotate(0deg);  }
+  25%  { transform: scale(1.13) rotate(7deg);  }
+  50%  { transform: scale(1)    rotate(0deg);  }
+  75%  { transform: scale(1.13) rotate(-7deg); }
+  100% { transform: scale(1)    rotate(0deg);  }
+}
+ 
+.theme-light .loading-magic .emoji {
+  animation:
+    breathe    1.4s ease-in-out infinite,
+    glow-light 1.4s ease-in-out infinite;
+}
+.theme-dark .loading-magic .emoji {
+  animation:
+    breathe   1.4s ease-in-out infinite,
+    glow-dark 1.4s ease-in-out infinite;
+}
+.tooltip-btn.loading-magic {
+  cursor:         wait !important;
+  pointer-events: none;
+}
+ 
+/* ══════════════════════════════════════════════════════════════
+   PARTIKEL FLOATING — naik bebas, tidak ada wadah
+   ══════════════════════════════════════════════════════════════ */
+@keyframes rise {
+  0%   { transform: translate(0, 0)              scale(1); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 0.7; }
+  100% { transform: translate(var(--dx), -26px)  scale(0); opacity: 0; }
+}
+ 
+.spark {
+  position:       absolute;
+  border-radius:  50%;
+  pointer-events: none;
+  opacity:        0;
+  display:        none;
+  z-index:        5;
+  animation:      rise var(--dur) ease-out var(--delay) infinite;
+}
+.loading-magic .spark { display: block; }
+ 
+.theme-light .spark { background: rgba(255, 185,  15, 0.80); }
+.theme-dark  .spark { background: rgba(255, 220,  70, 0.92); }
+ 
+/* 5 partikel dengan posisi & timing berbeda */
+.s1 { width:3.5px; height:3.5px; bottom:18px; left:9px;  --dx:-2px; --dur:1.4s; --delay:0.0s;  }
+.s2 { width:2.5px; height:2.5px; bottom:12px; left:2px;  --dx:-5px; --dur:1.7s; --delay:0.35s; }
+.s3 { width:3px;   height:3px;   bottom:16px; left:16px; --dx: 4px; --dur:1.5s; --delay:0.65s; }
+.s4 { width:2px;   height:2px;   bottom:14px; left:6px;  --dx: 2px; --dur:1.6s; --delay:1.0s;  }
+.s5 { width:2px;   height:2px;   bottom:10px; left:13px; --dx:-3px; --dur:1.8s; --delay:1.3s;  }
+ 
+
+/* ============================================================
+   READING MODE
+   ============================================================ */
+
+/* ── Floating Bar ────────────────────────────────────────────── */
+.floating-bar {
+  position:        fixed;
+  bottom:          28px;
+  left:            50%;
+  transform:       translateX(-50%);
+  z-index:         900;
+  display:         none; /* hanya tampil saat reading mode */
+  align-items:     center;
+  justify-content: space-between;
+  gap:             20px;
+  background:      rgba(28, 25, 22, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border:          1px solid rgba(255,255,255,0.1);
+  border-radius:   var(--radius-full);
+  padding:         10px 20px;
+  box-shadow:      0 8px 32px rgba(0,0,0,0.35);
+  min-width:       420px;
+  transition:      opacity 0.4s ease, transform 0.4s ease;
+}
+.floating-bar.hidden {
+  opacity:   0;
+  transform: translateX(-50%) translateY(16px);
+  pointer-events: none;
+}
+
+.fb-left, .fb-right {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+}
+.fb-center {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+}
+
+.fb-title {
+  font-size:     13px;
+  font-family:   var(--font-heading);
+  color:         rgba(255,255,255,0.7);
+  max-width:     140px;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.fb-btn {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       5px 12px;
+  border-radius: var(--radius-full);
+  font-size:     12px;
+  font-weight:   500;
+  color:         rgba(255,255,255,0.7);
+  background:    rgba(255,255,255,0.1);
+  transition:    all 0.15s;
+}
+.fb-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+.fb-nav-btn {
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  width:         28px;
+  height:        28px;
+  border-radius: 50%;
+  color:         rgba(255,255,255,0.7);
+  background:    rgba(255,255,255,0.08);
+  transition:    all 0.15s;
+}
+.fb-nav-btn:hover        { background: rgba(255,255,255,0.2); color: #fff; }
+.fb-nav-btn:disabled     { opacity: 0.3; cursor: not-allowed; }
+
+.fb-page {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  font-size:   13px;
+  color:       rgba(255,255,255,0.9);
+}
+.fb-page-input {
+  width:         38px;
+  text-align:    center;
+  background:    rgba(255,255,255,0.12);
+  border:        1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  color:         #fff;
+  font-size:     13px;
+  font-weight:   500;
+  padding:       3px 4px;
+}
+.fb-page-input:focus {
+  outline:       none;
+  border-color:  var(--accent);
+  background:    rgba(255,255,255,0.18);
+}
+.fb-page-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.fb-sep { color: rgba(255,255,255,0.35); }
+
+.fb-icon-btn {
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  width:       28px;
+  height:      28px;
+  border-radius: 50%;
+  color:       rgba(255,255,255,0.6);
+  transition:  all 0.15s;
+}
+.fb-icon-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+/* ── Reading Mode Layout (Fokus Penuh) ─────────────────────────────────────── */
+.reading-mode .reader-topbar {
+  transform:  translateY(-100%);
+  opacity:    0;
+  pointer-events: none;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+.reading-mode .highlights-sidebar {
+  width:   0;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 0.35s ease, opacity 0.35s ease;
+}
+
+.reading-mode .pdf-area {
+  padding:       60px 20px;
+  background:    #161513; /* Warna luar sangat gelap untuk fokus */
+  justify-content: center;
+  align-items:   flex-start;
+  transition:    background 0.35s ease;
+}
+
+.reading-mode .pdf-page-wrapper {
+  max-width:     700px; /* Di mode gelap, teks terlihat lebih besar, kita pangkas sedikit lebarnya */
+  box-shadow:    0 16px 64px rgba(0,0,0,0.8);
+  background:    #242220; /* Warna kertas gelap: Abu-abu kecoklatan (Warm Dark) */
+  border-radius: 6px;
+}
+
+/* Warna teks mode gelap (jika teks di render sebagai html span) */
+.reading-mode .pdf-text-layer > span {
+  color: #D4C8B8 !important; /* Warna teks Krem Pucat (Sangat ramah mata) */
+}
+
+.reading-mode .floating-bar {
+  display: flex; /* tampilkan floating bar */
+}
+.reading-mode .reader-body {
+  height: 100vh;
+}
+
+/* Topbar transition normal */
+.reader-topbar {
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+/* ============================================================
+   ACTION BUTTONS (Jelaskan & Terjemahkan)
+   ============================================================ */
+
+.topbar-divider {
+  width:      1px;
+  height:     22px;
+  background: var(--border);
+  margin:     0 4px;
+}
+
+.action-btn {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       7px 14px;
+  border-radius: var(--radius-md);
+  font-size:     13px;
+  font-weight:   500;
+  color:         var(--text-secondary);
+  border:        1.5px solid var(--border);
+  background:    var(--surface);
+  transition:    all 0.18s ease;
+  cursor:        pointer;
+  white-space:   nowrap;
+}
+.action-btn:hover {
+  border-color: var(--accent);
+  color:        var(--accent);
+  background:   var(--accent-softer);
+}
+.action-btn.active {
+  background:   var(--accent);
+  color:        #fff;
+  border-color: var(--accent);
+  box-shadow:   0 2px 8px rgba(181,114,42,0.35);
+}
+.action-btn-translate:hover {
+  border-color: #4A7C59;
+  color:        #4A7C59;
+  background:   #EAF5EE;
+}
+.action-btn-translate.active {
+  background:   #4A7C59;
+  color:        #fff;
+  border-color: #4A7C59;
+  box-shadow:   0 2px 8px rgba(74,124,89,0.35);
+}
+
+/* ── Selection Mode Banner ─────────────────────────────────── */
+.select-mode-banner {
+  flex-shrink:  0;
+  background:   linear-gradient(90deg, var(--accent-soft), #FEF6E0);
+  border-bottom: 2px solid var(--accent);
+  padding:      0 20px;
+  height:       44px;
+  display:      flex;
+  align-items:  center;
+  animation:    banner-in 0.25s ease;
+}
+.select-mode-banner[hidden] { display: none; }
+
+@keyframes banner-in {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.smb-inner {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  width:       100%;
+}
+
+.smb-pulse {
+  width:         10px;
+  height:        10px;
+  border-radius: 50%;
+  background:    var(--accent);
+  flex-shrink:   0;
+  animation:     pulse-ring 1.2s ease infinite;
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(181,114,42,0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(181,114,42,0); }
+  100% { box-shadow: 0 0 0 0 rgba(181,114,42,0); }
+}
+
+.smb-text {
+  flex:        1;
+  font-size:   13px;
+  font-weight: 500;
+  color:       var(--accent-hover);
+}
+
+.smb-cancel {
+  padding:       5px 12px;
+  border-radius: var(--radius-full);
+  font-size:     12px;
+  font-weight:   500;
+  color:         var(--text-secondary);
+  background:    rgba(28,25,22,0.07);
+  transition:    all 0.15s;
+  cursor:        pointer;
+}
+.smb-cancel:hover { background: rgba(28,25,22,0.14); color: var(--text-primary); }
+
+/* ── AI Panel Mode Badge ───────────────────────────────────── */
+.ai-panel-title-wrap {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+}
+.ai-panel-mode-badge {
+  display:       inline-flex;
+  align-items:   center;
+  padding:       4px 12px;
+  border-radius: var(--radius-full);
+  font-size:     13px;
+  font-weight:   600;
+}
+.badge-explain   { background: var(--accent-soft);  color: var(--accent); }
+.badge-translate { background: var(--success-bg);   color: var(--success); }
+
+/* ── Translate Card (ringkas) ──────────────────────────────── */
+.ai-translate-card {
+  background:    linear-gradient(135deg, #FDFAF4, #F5ECD8);
+  border:        1.5px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding:       20px;
+  margin:        4px 0 14px;
+  text-align:    center;
+}
+.ai-translate-label {
+  font-size:     11px;
+  font-weight:   600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color:         var(--text-muted);
+  margin-bottom: 10px;
+}
+.ai-translation-big {
+  font-family:   var(--font-heading);
+  font-size:     22px;
+  font-weight:   600;
+  color:         var(--text-primary);
+  line-height:   1.4;
+}
+
+/* ── Kursor saat mode aktif ────────────────────────────────── */
+.select-mode-active .pdf-text-layer {
+  cursor: text !important;
+}
+
+/* ============================================================
+   AUTH PAGES — Login & Register
+   ============================================================ */
+
+.auth-page {
+  display:    flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ── Sisi Kiri — Dekorasi ─────────────────────────────────── */
+.auth-deco {
+  width:      420px;
+  flex-shrink: 0;
+  background: linear-gradient(160deg, var(--accent) 0%, #8A4A18 100%);
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  padding:    48px;
+  position:   relative;
+  overflow:   hidden;
+}
+
+/* Lingkaran dekorasi latar */
+.auth-deco::before,
+.auth-deco::after {
+  content:       '';
+  position:      absolute;
+  border-radius: 50%;
+  background:    rgba(255,255,255,0.06);
+}
+.auth-deco::before {
+  width:  320px; height: 320px;
+  top:    -80px; right: -80px;
+}
+.auth-deco::after {
+  width:  200px; height: 200px;
+  bottom: -60px; left: -40px;
+}
+
+.auth-deco-inner {
+  position: relative;
+  z-index:  1;
+  color:    #fff;
+}
+
+.auth-deco .auth-brand {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  margin-bottom: 32px;
+}
+.auth-deco .brand-icon { font-size: 32px; }
+.auth-deco .brand-name {
+  font-family:  var(--font-heading);
+  font-size:    28px;
+  font-weight:  600;
+  color:        #fff;
+  letter-spacing: -0.5px;
+}
+
+.auth-tagline {
+  font-family:  var(--font-heading);
+  font-size:    26px;
+  font-weight:  500;
+  line-height:  1.45;
+  color:        rgba(255,255,255,0.92);
+  margin-bottom: 40px;
+}
+
+.auth-deco-dots {
+  display: flex;
+  gap:     10px;
+}
+.auth-deco-dots span {
+  display:       block;
+  width:         8px;
+  height:        8px;
+  border-radius: 50%;
+  background:    rgba(255,255,255,0.4);
+}
+.auth-deco-dots span:first-child {
+  background: rgba(255,255,255,0.9);
+  width:      24px;
+  border-radius: 4px;
+}
+
+/* ── Sisi Kanan — Form ────────────────────────────────────── */
+.auth-form-side {
+  flex:           1;
+  display:        flex;
+  align-items:    center;
+  justify-content: center;
+  padding:        40px 24px;
+  background:     var(--bg);
+}
+
+.auth-card {
+  width:     100%;
+  max-width: 400px;
+}
+
+.auth-card-header {
+  margin-bottom: 28px;
+}
+.auth-title {
+  font-family:  var(--font-heading);
+  font-size:    24px;
+  font-weight:  600;
+  color:        var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+.auth-subtitle {
+  font-size: 14px;
+  color:     var(--text-muted);
+}
+
+/* Alert */
+.auth-alert {
+  padding:       12px 16px;
+  border-radius: var(--radius-md);
+  font-size:     14px;
+  margin-bottom: 20px;
+  border:        1.5px solid currentColor;
+}
+.auth-alert--error   { background: var(--danger-bg);  color: var(--danger); }
+.auth-alert--success { background: var(--success-bg); color: var(--success); }
+
+/* Form */
+.auth-form .form-group {
+  margin-bottom: 18px;
+}
+
+/* Password input wrapper */
+.input-password-wrap {
+  position: relative;
+}
+.input-password-wrap .form-input {
+  padding-right: 42px;
+}
+.input-eye-btn {
+  position:    absolute;
+  right:       10px;
+  top:         50%;
+  transform:   translateY(-50%);
+  color:       var(--text-muted);
+  display:     flex;
+  align-items: center;
+  padding:     4px;
+  border-radius: 4px;
+  transition:  color 0.15s;
+}
+.input-eye-btn:hover { color: var(--text-primary); }
+
+.input-hint {
+  font-size:  12px;
+  color:      var(--text-muted);
+  margin-top: 5px;
+}
+
+/* Submit button */
+.auth-submit-btn {
+  width:           100%;
+  height:          46px;
+  justify-content: center;
+  font-size:       15px;
+  font-weight:     600;
+  margin-top:      8px;
+  letter-spacing:  0.2px;
+  transition:      all 0.2s ease;
+}
+.auth-submit-btn:hover {
+  transform:  translateY(-1px);
+  box-shadow: 0 4px 14px rgba(181,114,42,0.4);
+}
+
+/* Switch link */
+.auth-switch {
+  text-align:  center;
+  font-size:   14px;
+  color:       var(--text-muted);
+  margin-top:  24px;
+}
+.auth-switch a {
+  color:       var(--accent);
+  font-weight: 500;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.auth-switch a:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .auth-deco { display: none; }
+  .auth-form-side { padding: 32px 20px; }
+}
+
+/* --- MINIMALIST AUTH & BREATHING BACKGROUND --- */
+.auth-wrapper {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f4f7f6; /* Warna dasar abu-abu sejuk */
+  overflow: hidden;
+}
+
+.breathing-bg {
+  position: absolute;
+  width: 150vw;
+  height: 150vh;
+  /* Gradien radial lembut: perpaduan biru pudar dan sage green */
+  background: radial-gradient(circle at 50% 50%, rgba(136, 171, 194, 0.25), rgba(118, 160, 133, 0.1), transparent 60%);
+  animation: breathe 8s infinite alternate ease-in-out;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes breathe {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  100% { transform: scale(1.05); opacity: 1; }
+}
+
+.auth-card-minimal {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 380px;
+  background: rgba(255, 255, 255, 0.6); /* Transparan */
+  backdrop-filter: blur(16px); /* Efek kaca / blur belakang */
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.auth-card-minimal .form-input {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 12px;
+  padding: 14px;
+  transition: all 0.3s ease;
+}
+
+.auth-card-minimal .form-input:focus {
+  background: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(181, 114, 42, 0.1);
+}
+
+/* ============================================================
+   TAMPILAN BACAAN NOVEL (TEXT READER)
+   ============================================================ */
+
+.clean-text-reader {
+  width: 100%;
+  max-width: 640px; /* Membatasi lebar agar membentuk proporsi vertikal (mirip 9:16) */
+  min-height: 850px; /* Menjaga bentuknya memanjang ke bawah seperti kertas */
+  margin: 0 auto; /* Memastikan kertas selalu berada di tengah layar */
+  padding: 60px 56px; /* Memberikan ruang kosong (margin dalam) yang luas agar teks tidak menempel ke tepi */
+  
+  background-color: #FFFFFF; /* Latar belakang kertas putih bersih */
+  border-radius: 12px; /* Membuat sudut kertas sedikit melengkung (estetik) */
+  box-shadow: 0 8px 32px rgba(28, 25, 22, 0.08); /* Efek bayangan agar elemen tampak terpisah dari background */
+  
+  /* Pengaturan Tipografi yang Enak Dibaca (Ergonomi Mata) */
+  font-family: var(--font-reading), 'Source Serif 4', Georgia, serif; /* Font serif yang sangat cocok untuk novel */
+  font-size: 19px; /* Ukuran teks ideal untuk bacaan panjang */
+  line-height: 1.8; /* Jarak antar baris yang renggang agar mata tidak mudah lelah */
+  color: #2A2621; /* Menggunakan warna abu-abu sangat gelap (bukan hitam pekat #000) untuk mengurangi kontras kasar */
+  text-align: justify; /* Teks rata kiri & kanan agar terlihat rapi */
+}
+
+/* Merapikan Paragraf di dalam Teks */
+.clean-text-reader p {
+  margin-bottom: 1.2em; /* Jarak aman antar paragraf */
+  text-indent: 2em; /* Memberikan lekukan menjorok ke dalam di setiap awal paragraf (ciri khas novel) */
+}
+
+/* Opsional: Membuat highlight lebih menyatu di mode kertas putih */
+.clean-text-reader mark {
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* ============================================================
+   FUNGSI RESIZE (DRAG MANUAL UNTUK SIDEBAR & KERTAS BACAAN)
+   ============================================================ */
+
+/* 1. Area Sidebar Wajib Relative agar garis drag menempel di tepi */
+.highlights-sidebar, .ai-panel {
+  position: relative;
+}
+
+/* 2. Style untuk Garis Tarik (Resizer) */
+.resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px; /* Area sentuh panah mouse */
+  cursor: col-resize; /* Kursor berubah jadi panah kiri-kanan */
+  background-color: transparent;
+  z-index: 100;
+  transition: background-color 0.2s ease;
+}
+
+.resizer:hover, .resizer.dragging {
+  background-color: var(--accent); /* Warna garis muncul saat ditarik */
+}
+
+.resizer.right-edge { right: 0; }
+.resizer.left-edge { left: 0; }
+
+/* 3. Wrapper untuk Kertas Bacaan (Tengah) */
+.center-reader-wrapper {
+  position: relative;
+  width: 640px; /* Lebar default bacaan */
+  max-width: 95%; /* Batas maksimal layar */
+  min-width: 400px; /* Batas minimal lebar */
+  margin: 0 auto; /* Selalu jaga agar posisi di tengah layar */
+  display: block;
+}
+
+/* 4. Timpa CSS clean-text-reader agar mengikuti tarikan wrapper */
+.clean-text-reader {
+  width: 100% !important; 
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* ============================================================
+   TAMPILAN BACAAN NOVEL (TEXT READER)
+   ============================================================ */
+
+.clean-text-reader {
+  width: 100% !important; /* Dipaksa 100% agar mengikuti ukuran container luarnya (wrapper) */
+  max-width: none !important; 
+  margin: 0 !important;
+  padding: 60px 56px; 
+  background-color: #FFFFFF; 
+  border-radius: 12px; 
+  box-shadow: 0 8px 32px rgba(28, 25, 22, 0.08); 
+  
+  font-family: var(--font-reading), 'Source Serif 4', Georgia, serif; 
+  font-size: 19px; 
+  line-height: 1.8; 
+  color: #2A2621; 
+  text-align: justify; 
+}
+
+.clean-text-reader p {
+  margin-bottom: 1.2em; 
+  text-indent: 2em; 
+}
+
+.clean-text-reader mark {
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* ============================================================
+   FUNGSI RESIZE (DRAG MANUAL UNTUK SIDEBAR & KERTAS BACAAN)
+   ============================================================ */
+
+.highlights-sidebar, .ai-panel {
+  position: relative;
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  background-color: transparent;
+  z-index: 100;
+  transition: background-color 0.2s ease;
+}
+
+.resizer:hover, .resizer.dragging {
+  background-color: var(--accent);
+}
+
+.resizer.right-edge { right: 0; }
+.resizer.left-edge { left: 0; }
+
+.center-reader-wrapper {
+  position: relative;
+  width: 640px; 
+  max-width: 95%; 
+  min-width: 400px; 
+  margin: 0 auto; 
+  display: block;
+}
+
+/* ============================================================
+   TAMPILAN BACAAN NOVEL (TEXT READER)
+   ============================================================ */
+
+/* ============================================================
+   TAMPILAN BACAAN NOVEL (TEXT READER)
+   ============================================================ */
+/* ============================================================
+   TAMPILAN BACAAN NOVEL (TEXT READER)
+   ============================================================ */
+
+/* 1. Menggunakan Flexbox untuk Posisi Tengah Mutlak */
+.pdf-area {
+  flex: 1;
+  display: flex !important; /* Memaksa mode flexbox */
+  flex-direction: column;
+  align-items: center;      /* KUNCI UTAMA: Memaksa elemen anak selalu tepat di tengah horizontal */
+  justify-content: flex-start; /* Memastikan saat discroll, kertas tidak terpotong di atas */
+  overflow-y: auto;
+  padding: 60px 20px;
+  background: #F4EFE6;
+  position: relative;
+}
+
+/* 2. Wadah Kertas Bacaan */
+.center-reader-wrapper {
+  position: relative;
+  width: 850px; 
+  max-width: 100%; 
+  min-width: 400px; 
+  margin: 0 !important; /* Margin auto dihapus, karena sudah diurus oleh align-items: center di atas */
+  display: block;
+}
+
+/* 3. Tampilan Kertas Putih */
+.clean-text-reader {
+  width: 100% !important; 
+  max-width: none !important; 
+  margin: 0 !important;
+  padding: 60px 64px; 
+  background-color: #FFFFFF; 
+  border-radius: 12px; 
+  box-shadow: 0 8px 32px rgba(28, 25, 22, 0.08); 
+  
+  font-family: var(--font-reading), 'Source Serif 4', Georgia, serif; 
+  font-size: 19px; 
+  line-height: 1.8; 
+  color: #2A2621; 
+  
+  text-align: left !important; /* Teks Rata Kiri */
+  word-wrap: break-word; 
+}
+
+/* 4. Menghilangkan Teks Menjorok (Indent) */
+.clean-text-reader p {
+  margin-top: 0 !important;
+  margin-bottom: 1.5em !important; 
+  text-indent: 0 !important; /* Tanpa menjorok */
+}
+
+.clean-text-reader mark {
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* ============================================================
+   FUNGSI RESIZE (DRAG MANUAL UNTUK SIDEBAR & KERTAS BACAAN)
+   ============================================================ */
+
+.highlights-sidebar, .ai-panel {
+  position: relative;
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  background-color: transparent;
+  z-index: 100;
+  transition: background-color 0.2s ease;
+}
+
+.resizer:hover, .resizer.dragging {
+  background-color: var(--accent);
+}
+
+.resizer.right-edge { right: 0; }
+.resizer.left-edge { left: 0; }
+
+.center-reader-wrapper {
+  position: relative;
+  
+  /* PERBAIKAN LEBAR KERTAS: Diperlebar dari 640px menjadi 850px agar lebih dekat dengan sidebar */
+  width: 850px; 
+  max-width: 96%; 
+  min-width: 400px; 
+  margin: 0 auto; 
+  display: block;
+}
+/* ============================================================
+   PERBAIKAN TAMPILAN LOADING BACAAN
+   ============================================================ */
+
+/* Memaksa kertas putih hilang saat memuat dokumen */
+.center-reader-wrapper[hidden] {
+  display: none !important;
+}
+
+/* Membuat posisi animasi loading tetap melayang tepat di tengah */
+.pdf-loading {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 0 !important; 
+  color: var(--text-muted);
+  font-size: 15px;
+  font-weight: 500;
+  z-index: 10;
+}
+
+/* ============================================================
+   TEMA FOCUS MODE & CUSTOM UI MODAL
+   ============================================================ */
+
+/* UI Pemilih Tema Focus Mode */
+/* ============================================================
+   TEMA FOCUS MODE (ANTI-DISTRACTION UI)
+   ============================================================ */
+
+/* Pindahkan ke bawah tengah agar tidak memotong garis pandang membaca */
+.focus-theme-selector { 
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; 
+    gap: 16px; 
+    align-items: center; 
+    
+    /* Efek Kaca Samar */
+    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 20px;
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    
+    /* Psikologis: Buat hampir tak terlihat (15%) saat tidak digunakan */
+    opacity: 0.15; 
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10000;
+}
+
+.focus-theme-selector:hover {
+    opacity: 1; /* Muncul jelas hanya saat didekati mouse */
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateX(-50%) translateY(-4px); /* Efek mengambang sedikit */
+}
+
+.focus-theme-btn {
+    width: 16px; /* Diperkecil agar lebih halus */
+    height: 16px; 
+    border-radius: 50%;
+    border: 2px solid transparent; 
+    cursor: pointer;
+    transition: transform 0.3s, border-color 0.3s;
+    opacity: 0.6;
+}
+
+.focus-theme-btn:hover { 
+    transform: scale(1.4); 
+    opacity: 1;
+}
+
+.focus-theme-btn.active { 
+    border-color: rgba(255, 255, 255, 0.8); 
+    transform: scale(1.2); 
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); 
+    opacity: 1;
+}
+
+/* ============================================================
+   HALAMAN PROFIL
+   ============================================================ */
+.profile-page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+.profile-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    background: var(--primary);
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 15px auto;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+.input-icon-wrapper, .password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon-wrapper input, .password-wrapper input {
+    width: 100%;
+    padding: 12px 40px; /* Ruang untuk ikon di kiri dan kanan */
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-warm);
+    color: var(--text-primary);
+    font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-icon-wrapper input:focus, .password-wrapper input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    outline: none;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.toggle-password-btn:hover {
+    color: var(--primary);
+}
+
+/* Pastikan tombol mata berada di atas input */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-right: 45px !important; /* Beri ruang agar teks tidak tertutup ikon */
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%); /* Posisi tengah secara vertikal */
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 10; /* Pastikan dia di atas input */
+    padding: 5px;
+    display: flex;
+}
+
+.toggle-password-btn:hover {
+    color: var(--primary);
+}
+
+/* Pastikan tombol hapus dokumen tidak terblokir oleh lapisan lain */
+.doc-delete-btn {
+    position: relative;
+    z-index: 5;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--danger);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.doc-delete-btn:hover {
+    background: rgba(220, 53, 69, 0.1);
+}
+
+/* Welcoming Overlay */
+.welcome-overlay-hidden {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+.welcome-overlay-hidden.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.cursive-welcome {
+    font-family: 'Lora', serif; /* Atau gunakan font cursive pilihan Anda */
+    font-size: 3.5rem;
+    font-style: italic;
+    color: #2d3436;
+    text-align: center;
+    animation: fadeInUp 1s ease-out;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bulk Actions UI */
+.bulk-actions-bar {
+    display: none;
+    background: var(--surface);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border);
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ============================================================
+   UI READING PLAN (SIDEBAR MINIMALIS)
+   ============================================================ */
+.reading-plan-container {
+    padding: 12px 0;
+}
+
+.plan-item {
+    margin-bottom: 16px;
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+/* Progress bar dibuat sangat tipis (4px) */
+.plan-progress-bg {
+    height: 4px; 
+    background: var(--bg-warm);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.plan-progress-fill {
+    height: 100%;
+    background: var(--text-muted); /* Gunakan warna netral, jangan warna solid mencolok */
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — Readfolio{% endblock %}
+
+{% block body %}
+<div class="library-layout">
+  
+  {% include "sidebar.html" %}
+
+  <main class="lib-main">
+    <header class="lib-header">
+      <div>
+        <h1 class="lib-title">User Management</h1>
+        <p class="lib-subtitle">Register and manage users for Maca Weh.</p>
+      </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-top: 10px;">
+      
+      <div class="doc-card" style="padding: 24px;">
+        <h3 style="margin-bottom: 20px;">Register New User</h3>
+        <form method="POST">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-input" required>
+          </div>
+          <div class="form-group" style="margin-top: 15px;">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-input" required>
+          </div>
+          <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" name="is_admin" id="is_admin">
+            <label for="is_admin" style="font-size: 14px;">Grant Admin Privileges</label>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 25px;">Create User</button>
+        </form>
+      </div>
+
+      <div class="doc-card" style="padding: 24px;">
+        <h3 style="margin-bottom: 20px;">Existing Users</h3>
+        <table style="width: 100%; text-align: left; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 13px;">
+              <th style="padding: 12px;">USERNAME</th>
+              <th style="padding: 12px;">ROLE</th>
+              <th style="padding: 12px; text-align: right;">AKSI</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for user in users %}
+              <tr style="border-top: 1px solid var(--border);">
+                <td style="padding: 12px; font-size: 14px;">{{ user.username }}</td>
+                <td style="padding: 12px;">
+                  {% if user.is_admin %}
+                    {% if user.username == 'Ghanif' %}
+                      <span style="background-color: darkcyan; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">Developer</span>
+                    {% else %}
+                      <span style="background-color: var(--accent); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px;">Admin</span>
+                    {% endif %}
+                  {% else %}
+                    <span style="background-color: #6c757d; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px;">User</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 12px; text-align: right;">
+                  {% if current_user.username == 'Ghanif' and user.username != 'Ghanif' %}
+                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Sebagai Developer, yakin ingin menghapus akun ini?');">
+                      <button type="submit" style="background: var(--danger); color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Hapus</button>
+                    </form>
+                  {% elif not user.is_admin %}
+                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus pengguna ini?');">
+                      <button type="submit" style="background: var(--danger); color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Hapus</button>
+                    </form>
+                  {% else %}
+                    {% if user.username == 'Ghanif' %}
+                      <span style="font-size: 12px; color: var(--text-muted); font-weight: bold;">👑 Protected</span>
+                    {% else %}
+                      <span style="font-size: 12px; color: var(--text-muted);"><i>Admin Utama</i></span>
+                    {% endif %}
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

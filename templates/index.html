@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Maca Weh — Library{% endblock %}
+
+{% block body %}
+<div class="library-layout">
+  <aside class="lib-sidebar">
+    <div class="lib-brand">
+      <span class="brand-icon">📖</span><span class="brand-name">Maca Weh</span>
+    </div>
+    <nav class="lib-nav">
+      <a href="/" class="lib-nav-item active" id="nav-all">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        All Documents
+      </a>
+      <a href="/?filter=reading" class="lib-nav-item" id="nav-reading">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Currently Reading
+      </a>
+      <a href="/?filter=finished" class="lib-nav-item" id="nav-finished">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Completed
+      </a>
+      
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+        <p style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-left: 12px;">Learning Menu</p>
+        <a href="/stats" class="lib-nav-item" id="nav-stats">📊 Learning Stats</a>
+        <a href="/notes" class="lib-nav-item" id="nav-notes">📝 Notes & Vocabulary</a>
+        
+        <a href="/profile" class="lib-nav-item" id="nav-profile">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Profil Saya
+        </a>
+
+        {% if current_user.is_admin %}
+        <a href="/admin" class="lib-nav-item" style="margin-top: 10px; color: var(--accent);">⚙️ Admin Panel</a>
+        {% endif %}
+      </div>      
+
+      <a href="/logout" class="lib-nav-item" style="margin-top: auto; color: var(--danger);">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log Out
+      </a>
+    </nav>
+  </aside>
+
+  <main class="lib-main">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% if message.startswith('welcome_beloved:') %}
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                // Ekstrak nama user dari string (potong 16 karakter pertama "welcome_beloved:")
+                const username = {{ message[16:]|tojson }};
+                const overlay  = document.getElementById('welcome-overlay');
+                const textEl   = document.getElementById('welcome-text');
+                
+                textEl.innerHTML = `
+                  <span class="line1">welcome my beloved friend,</span>
+                  <span class="line2">${username}</span>
+                  <span class="line3">♡</span>
+                `;
+                
+                overlay.removeAttribute('hidden');
+                requestAnimationFrame(() => overlay.classList.add('visible'));
+                
+                setTimeout(() => {
+                  overlay.classList.remove('visible');
+                  setTimeout(() => overlay.setAttribute('hidden', ''), 600);
+                }, 2800);
+              });
+            </script>
+          {% else %}
+            <div style="background: rgba(181, 114, 42, 0.1); border: 1px solid var(--accent); padding: 15px; 
+                        border-radius: var(--radius-md); margin-bottom: 25px; color: var(--text-primary); 
+                        font-weight: 500; display: flex; align-items: center; gap: 10px;">
+              <span>✨</span> {{ message }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <header class="lib-header">
+      <div>
+        <h1 class="lib-title">Library</h1>
+        <p class="lib-subtitle">Manage your PDF collection</p>
+      </div>
+      <button class="btn btn-primary" id="upload-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Upload PDF
+      </button>
+    </header>
+
+    <div class="lib-search-wrap">
+      <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" class="lib-search" placeholder="Search documents..." />
+    </div>
+
+    <div class="doc-grid" id="doc-grid">
+      <div class="doc-empty" id="empty-state">
+        <div class="empty-icon">📚</div>
+        <h3>No documents yet</h3>
+        <p>Upload a PDF to start reading and learning.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="upload-modal" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Upload PDF</h2>
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-zone-icon">📄</div>
+        <p class="drop-zone-text">Drag & Drop file PDF di sini</p>
+        <p class="drop-zone-hint" style="margin-bottom: 12px;">atau</p>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('file-input').click()">
+          Pilih File
+        </button>
+        <input type="file" id="file-input" accept=".pdf" hidden />
+      </div>
+
+      <div id="file-selected" hidden>
+        <div class="file-preview">
+          <div class="file-preview-icon">📑</div>
+          <div class="file-preview-info">
+            <div class="file-preview-name" id="file-preview-name">nama-file.pdf</div>
+            <div class="file-preview-size" id="file-preview-size">0 MB</div>
+          </div>
+          <button class="file-remove-btn" id="file-remove-btn" title="Hapus file">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="doc-title">Judul Dokumen</label>
+          <input type="text" id="doc-title" class="form-input" placeholder="Masukkan judul buku/dokumen..." />
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="cancel-upload-btn">Batal</button>
+      <button class="btn btn-primary" id="confirm-upload-btn" disabled>
+        <span id="upload-spinner" class="spinner" hidden style="margin-right: 6px;"></span>
+        <span id="upload-btn-text">Upload</span>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

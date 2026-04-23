@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Readfolio — Notes & Vocabulary{% endblock %}
+
+{% block body %}
+<div class="library-layout">
+  <aside class="lib-sidebar">
+    <div class="lib-brand"><span class="brand-icon">📖</span><span class="brand-name">Maca Weh</span></div>
+    <nav class="lib-nav">
+      <a href="/" class="lib-nav-item"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> All Documents</a>
+      <a href="/?filter=reading" class="lib-nav-item"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Currently Reading</a>
+      <a href="/?filter=finished" class="lib-nav-item"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Completed</a>
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+        <p style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-left: 12px;">Learning Menu</p>
+        <a href="/stats" class="lib-nav-item"><span>📊 Learning Stats</span></a>
+        <a href="/notes" class="lib-nav-item active"><span>📝 Notes & Vocabulary</span></a>
+        
+        {% if current_user.is_admin %}
+        <a href="/admin" class="lib-nav-item" style="margin-top: 10px; color: var(--accent);">⚙️ Admin Panel</a>
+        {% endif %}
+      </div>
+
+      <a href="/logout" class="lib-nav-item" style="margin-top: auto; color: var(--danger);">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log Out
+      </a>
+    </nav>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-header" style="margin-bottom: 24px;">
+      <div>
+        <h1 class="lib-title">My Notes Collection</h1>
+        <p class="lib-subtitle">All your new words and AI notes drawn directly from your database.</p>
+      </div>
+    </header>
+
+    {% if not grouped_notes %}
+    <div style="text-align: center; padding: 60px; color: var(--text-muted);">
+        <span style="font-size: 40px;">📭</span>
+        <p style="margin-top: 10px;">You don't have any saved notes or vocabulary yet.</p>
+    </div>
+    {% endif %}
+
+    {% for book_title, notes in grouped_notes.items() %}
+    <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 30px;">
+      <h3 style="margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; gap: 8px;">
+        <span>📚</span> {{ book_title }}
+      </h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+        {% for note in notes %}
+            <div style="padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-warm); display: flex; flex-direction: column;">
+                <p style="font-style: italic; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--border-strong); font-size: 13px;">
+                    <mark style="background: {{ note.color|default('rgba(255, 213, 79, 0.55)') }}; border-radius: 3px; padding: 2px 4px;">"{{ note.selected_text }}"</mark>
+                    <span style="font-size: 11px; color: var(--text-muted); float: right;">Pg. {{ note.page_number }}</span>
+                </p>
+
+                {% if note.parsed_vocab %}
+                    <div style="margin-top: auto;">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px;">Key Vocabulary:</span>
+                        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+                        {% for vocab in note.parsed_vocab %}
+                            <div style="background: var(--surface); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+                                    <strong style="color: var(--accent); font-size: 14px;">{{ vocab.word }}</strong> 
+                                    <span style="color: var(--text-muted); font-size: 10px; background: var(--bg); padding: 2px 6px; border-radius: 4px;">{{ vocab.type }}</span>
+                                </div>
+                                <span style="color: var(--text-secondary); font-size: 12px; line-height: 1.4; display: block;">{{ vocab.meaning }}</span>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="margin-top: auto;">
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                            <strong style="font-size: 11px; text-transform: uppercase;">Translation / Notes:</strong><br>
+                            {{ note.ai_translation or note.ai_explanation or "No specific notes." }}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </main>
+</div>
+{% endblock %}
