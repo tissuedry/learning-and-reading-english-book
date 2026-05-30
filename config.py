@@ -9,7 +9,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-key')
     
     # AI API Keys
-    GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
     ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
     
     # Database Lokal menggunakan SQLite

@@ -3,7 +3,7 @@ import asyncio
 import edge_tts
 from flask import Blueprint, request, jsonify, Response
 from config import Config
-from groq import Groq
+import google.generativeai as genai # Perbaikan 1: Menggunakan SDK resmi Google
 import json
 import re
 
@@ -20,8 +20,9 @@ def _clean_json(text: str) -> str:
 @ai_bp.route('/explain', methods=['POST'])
 def explain_text():
     try:
-        if not Config.GROQ_API_KEY:
-            return jsonify({'error': 'GROQ_API_KEY is not configured'}), 500
+        # Pengecekan API Key Gemini sesuai konfigurasi kamu
+        if not Config.GEMINI_API_KEY:
+            return jsonify({'error': 'GEMINI_KEY is not configured'}), 500
 
         body = request.get_json(silent=True) or {}
         text = body.get('text', '').strip()
@@ -30,13 +31,14 @@ def explain_text():
         if not text:
             return jsonify({'error': 'No text provided'}), 400
 
-        client = Groq(api_key=Config.GROQ_API_KEY)
+        # Perbaikan 2: Konfigurasi API Key untuk Gemini
+        genai.configure(api_key=Config.GEMINI_API_KEY)
 
         word_count = len(text.split())
         is_single_word = word_count == 1
 
         # =====================================================================
-        # GRAMMAR INSTRUCTION: Adaptif berdasarkan jumlah kata
+        # GRAMMAR INSTRUCTION: Adaptif berdasarkan jumlah kata (TETAP SAMA)
         # =====================================================================
         if is_single_word:
             grammar_instruction = """3. Grammar — ANALISIS 6 DIMENSI LINGUISTIK (in Indonesian):
@@ -103,7 +105,7 @@ def explain_text():
    - Fungsi conjunction atau connecting word jika ada"""
 
         # =====================================================================
-        # PROMPT UTAMA
+        # PROMPT UTAMA (TETAP SAMA, MENJAGA STRUKTUR OUTPUT JSON)
         # =====================================================================
         prompt = f"""
 You are a world-class English Professor from Oxford. Your mission is to provide elite-level linguistic analysis for an Indonesian student mastering English.
@@ -165,40 +167,49 @@ JSON STRUCTURE:
 }}
 """
 
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a world-class linguistics professor providing precise, academic, comprehensive analysis. "
-                        "Follow the JSON format strictly. No prose, no code fences. "
-                        "CRITICAL RULE 1 — 'translation' field: direct literal translation ONLY. "
-                        "Never include story context, characters, or narrative explanation. "
-                        "CRITICAL RULE 2 — 'grammar' field for single words: MUST cover all 6 dimensions: "
-                        "morfologi, sintaksis, semantik, leksikal, register/pragmatik, akuisisi bahasa. "
-                        "Do not skip or abbreviate any dimension."
-                    )
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0.1,
-            max_tokens=3000,
-            response_format={"type": "json_object"}
+        # Perbaikan 3: Konfigurasi penanganan format JSON dan keakuratan respons model Gemini
+        generation_config = {
+            "temperature": 0.1,
+            "response_mime_type": "application/json",
+        }
+
+        # Perbaikan 4: Deklarasi instruksi sistem terpisah khusus untuk Gemini SDK
+        system_instruction = (
+            "You are a world-class linguistics professor providing precise, academic, comprehensive analysis. "
+            "Follow the JSON format strictly. No prose, no code fences. "
+            "CRITICAL RULE 1 — 'translation' field: direct literal translation ONLY. "
+            "Never include story context, characters, or narrative explanation. "
+            "CRITICAL RULE 2 — 'grammar' field for single words: MUST cover all 6 dimensions: "
+            "morfologi, sintaksis, semantik, leksikal, register/pragmatik, akuisisi bahasa. "
+            "Do not skip or abbreviate any dimension."
         )
 
-        result_json = _clean_json(completion.choices[0].message.content)
+        model = genai.GenerativeModel(
+            model_name="gemini-3.5-flash",
+            generation_config=generation_config,
+            system_instruction=system_instruction
+        )
+
+        # Perbaikan 6: Melakukan pemanggilan konten
+        response = model.generate_content(prompt)
+
+        # Perbaikan 7: Menangkap output teks JSON dari Gemini
+        result_json = _clean_json(response.text)
         result = json.loads(result_json)
         return jsonify({'data': result, 'error': None})
 
     except Exception as e:
+        # --- TAMBAHKAN DUA BARIS INI UNTUK DEBUGGING ---
+        import traceback
+        print("\n❌ === GEMINI ERROR TRACEBACK CRITICAL === ❌")
+        traceback.print_exc() 
+        print("================================================\n")
+        # -----------------------------------------------
+        
         return jsonify({'data': None, 'error': str(e)}), 500
 
 
-# --- TTS Logic (Streaming Audio) ---
+# --- TTS Logic (Streaming Audio - TETAP SAMA) ---
 async def get_edge_tts_audio_bytes(text: str, voice: str) -> bytes:
     communicate = edge_tts.Communicate(text, voice)
     audio_data = bytearray()
@@ -212,16 +223,15 @@ def edge_tts_endpoint():
     try:
         data = request.get_json(silent=True) or {}
         text = data.get('text', '').strip()
-        accent = data.get('accent', 'american') # Default ke American
+        accent = data.get('accent', 'american')
         
         if not text:
             return jsonify({'error': 'Teks kosong'}), 400
             
-        # Pilihan Suara Berdasarkan Request
         if accent == 'british':
-            VOICE_ID = "en-GB-SoniaNeural" # Suara British UK
+            VOICE_ID = "en-GB-SoniaNeural"
         else:
-            VOICE_ID = "en-US-JennyNeural" # Suara American US
+            VOICE_ID = "en-US-JennyNeural"
             
         audio_bytes = asyncio.run(get_edge_tts_audio_bytes(text, VOICE_ID))
         return Response(audio_bytes, mimetype="audio/mpeg")
